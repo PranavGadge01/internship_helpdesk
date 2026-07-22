@@ -1,0 +1,19 @@
+package com.internship.helpdesk.repository;
+
+import com.internship.helpdesk.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public class UserRepository extends JpaRepository<User,Long> {
+
+    Optional<User> findByEmail(String email);
+
+    boolean existsByEmail(String email);
+
+    List<User> findByDepartmentId(Long departmentId);
+
+}
