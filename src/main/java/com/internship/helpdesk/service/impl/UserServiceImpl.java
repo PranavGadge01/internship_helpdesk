@@ -5,6 +5,9 @@ import com.internship.helpdesk.dto.request.UpdateUserRequest;
 import com.internship.helpdesk.dto.response.UserResponse;
 import com.internship.helpdesk.entity.Department;
 import com.internship.helpdesk.entity.User;
+import com.internship.helpdesk.exception.DepartmentNotFoundException;
+import com.internship.helpdesk.exception.EmailAlreadyExistsException;
+import com.internship.helpdesk.exception.UserNotFoundException;
 import com.internship.helpdesk.repository.DepartmentRepository;
 import com.internship.helpdesk.repository.UserRepository;
 import com.internship.helpdesk.service.UserService;
@@ -29,11 +32,12 @@ public class UserServiceImpl implements UserService {
     public UserResponse createUser(CreateUserRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistsException("Email already exists");
         }
 
         Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException("Department not found"));
+                .orElseThrow(() ->
+                        new DepartmentNotFoundException("Department not found"));
 
         User user = new User();
 
@@ -63,7 +67,8 @@ public class UserServiceImpl implements UserService {
     public UserResponse getUserById(Long id) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found"));
 
         return mapToUserResponse(user);
     }
@@ -72,15 +77,17 @@ public class UserServiceImpl implements UserService {
     public UserResponse updateUser(Long id, UpdateUserRequest request) {
 
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found"));
 
         if (!existingUser.getEmail().equals(request.getEmail())
                 && userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistsException("Email already exists");
         }
 
         Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException("Department not found"));
+                .orElseThrow(() ->
+                        new DepartmentNotFoundException("Department not found"));
 
         existingUser.setFirstName(request.getFirstName());
         existingUser.setLastName(request.getLastName());
@@ -99,7 +106,8 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found"));
 
         userRepository.delete(user);
     }
@@ -107,7 +115,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getUsersByDepartment(Long departmentId) {
 
-        return userRepository.findByDepartmentId(departmentId)
+        return userRepository.findByDepartmentDeptId(departmentId)
                 .stream()
                 .map(this::mapToUserResponse)
                 .collect(Collectors.toList());
