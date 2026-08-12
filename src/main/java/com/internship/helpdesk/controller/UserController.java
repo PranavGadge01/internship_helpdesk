@@ -5,12 +5,14 @@ import com.internship.helpdesk.dto.request.UpdateUserRequest;
 import com.internship.helpdesk.dto.response.UserResponse;
 import com.internship.helpdesk.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@PreAuthorize("hasRole('ADMIN')")
 public class UserController {
 
     private final UserService userService;

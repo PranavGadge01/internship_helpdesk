@@ -1,5 +1,6 @@
 package com.internship.helpdesk.security.jwt;
 
+import com.internship.helpdesk.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -27,13 +28,22 @@ public class JwtUtils {
         );
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User user) {
 
         return Jwts.builder()
-                .subject(userDetails.getUsername())
+
+                .subject(user.getEmail())
+
+                .claim("userId", user.getId())
+
+                .claim("role", user.getRole().name())
+
                 .issuedAt(new Date())
+
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+
                 .compact();
     }
 
@@ -61,5 +71,16 @@ public class JwtUtils {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public Long getUserIdFromToken(String token) {
+
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.get("userId", Long.class);
     }
 }
